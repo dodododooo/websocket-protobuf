@@ -7,7 +7,8 @@ yarn install
 
 ### Compiles and hot-reloads for development
 ```
-yarn serve
+npm run serve
+npm run socket
 ```
 
 ### Compiles and minifies for production
