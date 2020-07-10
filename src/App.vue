@@ -44,7 +44,7 @@ export default {
     },
     initSocket () {
       // let link = `ws://8.129.221.132:8181/ws`;
-      let link = `ws://192.168.28.222:8001`;
+      let link = `ws://127.0.0.1:8001`;
       socket = new WebSocket(link);
       socket.onerror = () => {
         // console.log(e);
