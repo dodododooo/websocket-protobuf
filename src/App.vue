@@ -16,7 +16,7 @@
 <script>
 import {pb} from './entity';
 let socket = null;
-import axios from 'axios';
+// import axios from 'axios';
 export default {
   name: 'App',
   data () {
@@ -29,7 +29,7 @@ export default {
     }
   },
   created () {
-    console.log(pb, socket, axios);
+    // console.log(pb, socket, axios);
     this.initSocket();
   },
   methods: {
@@ -38,48 +38,79 @@ export default {
     },
     sendMsg () {
       let message = this.createMessage(this.inputText);
-      let messageBuffer = pb.Input.encode(message).finish();
-      socket.send(messageBuffer);
+      // let messageBuffer = pb.Input.encode(message).finish();
+      // socket.send(messageBuffer);
+      socket.send(JSON.stringify(message));
       this.inputText = '';
     },
     initSocket () {
-      // let link = `ws://8.129.221.132:8181/ws`;
-      let link = `ws://127.0.0.1:8001`;
+      let link = `ws://8.129.221.132:8181/ws?userId=200&deviceId=72435072296292352`;
+      // let link = `ws://192.168.28.222:8001`;
       socket = new WebSocket(link);
       socket.onerror = (e) => {
         console.log(e);
       }
       socket.onopen = () => {
         let message = this.createMessage('你好！');
-        let messageBuffer = pb.Input.encode(message).finish();
+        // let messageBuffer = pb.Input.encode(message).finish();
         // let messageDecode = pb.Input.decode(messageBuffer);
         // console.log(message);
         // console.log(messageBuffer);
         // console.log(message.toJSON());
-        socket.send(messageBuffer);
+        socket.send(JSON.stringify(message));
         // let mJson = {"RequestId":12,"MessageId":"1","PackageType":5,"ServiceType":0,"SenderId":"200","SenderDeviceId":"67940218442878976","ReceiverType":1,"ReceiverId":"200","ToUserIds":null,"MessageBody":{"MessageType":1,"MessageContent":"怎么样获取积分"},"SendTime":1594258837827};
         // socket.send(JSON.stringify(mJson));
       }
       socket.onmessage = (e) => {
         let msg = e.data;
-        console.log('recived msg', msg);
-        console.log('recived msg type: ', typeof msg);
+        // console.log('recived msg', msg);
+        // console.log('recived msg type: ', typeof msg);
         if (msg instanceof Blob) {
-          msg.arrayBuffer().then(buffer => {
-            console.log('buffer: ', buffer)
-            let r = pb.Output.decode(new Uint8Array(buffer), buffer.byteLength);
-            let msg = pb.MessageItem.toObject(pb.MessageItem.decode(r.data));
-            let text = msg.messageBody.messageContent.text.text;
-            this.list.push({type: 'l', text});
-            this.$nextTick(() => {
-              this.scrollToBottom();
-            })
-            console.log('recived msg: ', text);
+          // msg.arrayBuffer().then(buffer => {
+          //   console.log('buffer: ', buffer)
+          //   let r = pb.Output.decode(new Uint8Array(buffer), buffer.byteLength);
+          //   let msg = pb.MessageItem.toObject(pb.MessageItem.decode(r.data));
+          //   let text = msg.messageBody.messageContent.text.text;
+          //   this.list.push({type: 'l', text});
+          //   this.$nextTick(() => {
+          //     this.scrollToBottom();
+          //   })
+          //   console.log('recived msg: ', text);
+          // })
+        } else {
+          let res = JSON.parse(msg);
+          console.log(res)
+          let text = res.message.message_body.MessageContent;
+          this.list.push({type: 'l', text});
+          this.$nextTick(() => {
+            this.scrollToBottom();
           })
         }
       }
     },
     createMessage (msg) {
+      this.list.push({type: 'r', text: msg});
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      })
+      return {
+        "RequestId": 12,    //请求id
+        "MessageId": "1",   //信息id
+        "PackageType": 5,   //0 未知 1 设备登录请求2消息同步触发 3 心跳 4 消息回执 5消息
+        "ServiceType": 0,   //
+        "SenderId": "200",  // 用户id
+        "SenderDeviceId": "72435072296292352",// 用户设备id
+        "ReceiverType": 1, //接收者类型
+        "ReceiverId": "200",//接收者id
+        "ToUserIds": null, //群组id
+        "MessageBody": {
+          "MessageType": 1,
+          "MessageContent": msg
+        },
+        "SendTime": Date.now() //时间戳
+      }
+    },
+    createMessage1 (msg) {
       this.list.push({type: 'r', text: msg});
       this.$nextTick(() => {
         this.scrollToBottom();
