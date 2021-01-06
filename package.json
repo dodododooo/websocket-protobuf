@@ -10,7 +10,7 @@
     "socket": "node socket-server.js"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "nodejs-websocket": "^1.7.2",
     "protobufjs": "^6.9.0",
